@@ -1,0 +1,62 @@
+name: "*▶️ Dependency Upgrade"
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs every Saturday at 9:00 AM UTC
+    - cron: "0 9 * * 6"
+
+concurrency:
+  group: "dependency-upgrade-${{ format('br-{0}', github.ref_name) }}"
+  cancel-in-progress: true
+
+jobs:
+  auto-upgrade:
+    name: Auto Upgrade & PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up pnpm shim
+        run: corepack enable
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+
+      - name: Run dependency upgrade
+        id: upgrade
+        run: |
+          pnpm run all:full-upgrade
+          echo "✅ Dependency upgrade completed successfully"
+
+          # Revert pnpm-lock.yaml if package.json was not changed
+          # (pnpm-lock.yaml-only changes are due to environment differences)
+          if git diff --quiet HEAD -- package.json
+          then
+            git checkout HEAD -- pnpm-lock.yaml
+          fi
+
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.DAHKNITE_CLIENT_ID }}
+          private-key: ${{ secrets.DAHKNITE_PRIVATE_KEY }}
+
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          commit-message: "fix(deps): upgrade dependencies"
+          title: "fix(deps): upgrade dependencies"
+          body: |
+            ## Automated Dependency Upgrade
+
+            This PR upgrades pnpm dependencies in the gh-as-app action to their latest versions.
+
+            ---
+            _This PR was automatically created by the [dependency-upgrade workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/dependency-upgrade.yml)._
+            _Triggered by: @${{ github.actor }}_
+          branch: bot/dependency-upgrade/${{ github.ref_name }}
+          labels: dependencies
