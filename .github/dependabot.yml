@@ -15,6 +15,13 @@ updates:
       default-days: 1
       include:
         - "*"
+    groups:
+      bump-tag-npm-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
     commit-message:
       prefix: "fix"
       include: "scope"
