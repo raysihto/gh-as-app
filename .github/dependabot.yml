@@ -11,6 +11,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 1
+      include:
+        - "*"
     commit-message:
       prefix: "fix"
       include: "scope"
