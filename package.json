@@ -1,0 +1,70 @@
+{
+  "name": "gh-as-app",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "gh-as": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "packageManager": "pnpm@11.5.1+sha512.93f7b57422ea7068257235b4c16eb60762eb68e1dc23723199cc739043ea9be2c4143274a399d8c6defa2b1176226d9ca1c4b63482d6200c1a8fbaa78c1d1485",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "check:deadcode": "knip",
+    "check:format": "prettier --check .",
+    "check:lint": "eslint . --max-warnings=0",
+    "check:type": "tsc --noEmit",
+    "check:test": "vitest run --coverage",
+    "check:test:watch": "vitest",
+    "check:all": "concurrently -n 'deadcode,format,lint,type,test' \"pnpm run check:deadcode\" \"pnpm run check:format\" \"pnpm run check:lint\" \"pnpm run check:type\" \"pnpm run check:test\" && echo All checks passed!",
+    "check": "pnpm run check:all",
+    "fix:format": "prettier --write .",
+    "fix:lint": "eslint --fix .",
+    "fix:all": "pnpm run fix:format && pnpm run fix:lint",
+    "fix": "pnpm run fix:all",
+    "package": "pnpm dlx rimraf dist && rollup -c",
+    "package:watch": "pnpm run package -- --watch",
+    "bundle": "pnpm run fix:all && pnpm run package",
+    "all": "pnpm run fix:all && pnpm run check:all && pnpm run package",
+    "upgrade:pm": "corepack use pnpm@latest",
+    "upgrade:deps": "pnpm dlx npm-check-updates -u -p pnpm --peer && pnpm install",
+    "upgrade:all": "pnpm run upgrade:pm && pnpm run upgrade:deps",
+    "all:upgrade": "pnpm run upgrade:all && pnpm run all",
+    "reinstall": "pnpm dlx rimraf node_modules pnpm-lock.yaml && pnpm install",
+    "all:full-upgrade": "pnpm run reinstall && pnpm run all:upgrade",
+    "gh-as": "tsx src/gh-as-app.ts"
+  },
+  "dependencies": {
+    "@octokit/auth-app": "^8.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^1.0.0",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/node": "^24.12.4",
+    "@vitest/coverage-v8": "^4.1.8",
+    "concurrently": "^10.0.1",
+    "eslint": "^9.39.4",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-promise": "^7.3.0",
+    "knip": "^6.15.0",
+    "prettier": "^3.8.3",
+    "rollup": "^4.61.0",
+    "tslib": "^2.8.1",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.1",
+    "vitest": "^4.1.8"
+  }
+}
